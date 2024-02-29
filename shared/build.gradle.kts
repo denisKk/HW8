@@ -1,6 +1,7 @@
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidLibrary)
+    kotlin("multiplatform")
+    id("com.android.library")
+    kotlin("plugin.serialization")
 }
 
 kotlin {
@@ -11,7 +12,7 @@ kotlin {
             }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -28,20 +29,25 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                implementation("io.insert-koin:koin-core:3.4.0")
+                implementation( "io.insert-koin:koin-core:3.4.0")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
                 implementation("io.ktor:ktor-client-serialization:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
+
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
             }
         }
-
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
         val androidMain by getting {
             dependencies {
-                implementation("io.insert-koin:koin-android:3.2.0")
+                implementation( "io.insert-koin:koin-android:3.2.0")
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
         }
@@ -57,7 +63,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-ios:$ktorVersion")
             }
         }
-
     }
 }
 
@@ -67,6 +72,11 @@ android {
     defaultConfig {
         minSdk = 24
     }
+
+    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    sourceSets["main"].res.srcDirs("src/androidMain/res")
+    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
